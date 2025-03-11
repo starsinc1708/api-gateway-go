@@ -1,0 +1,34 @@
+api-gateway:
+  port: 9000
+  endpoint: tg-updates
+
+bot-modules:
+  anonimus-chat:
+    grpc:
+      host: localhost
+      port: 5000
+    allowed-updates:
+      private_chat:
+        - message
+        - callback_query
+        - my_chat_member
+      channel:
+        - channel_post
+        - edited_channel_post
+        - callback_query
+  group_stat:
+    grpc:
+      host: localhost
+      port: 5002
+    allowed-updates:
+      supergroup:
+        - message
+        - callback_query
+        - my_chat_member
+
+where-to-send-logs:
+  address: host:port
+where-to-send-metrics:
+  address: host:port
+
+
