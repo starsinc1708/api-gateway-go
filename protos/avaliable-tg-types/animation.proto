@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "photo_size.proto";
+
+message animation {
+  string file_id = 1;
+  string file_unique_id = 2;
+  sint32 width = 3;
+  sint32 height = 4;
+  sint32 duration = 5;
+  optional photo_size thumbnail = 6;
+  optional string file_name = 7;
+  optional string mime_type = 8;
+  optional sint32 file_size = 9;
+}

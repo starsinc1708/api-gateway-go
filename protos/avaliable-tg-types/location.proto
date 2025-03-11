@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message location {
+  float longitude = 1;
+  float latitude = 2;
+  optional float horizontal_accuracy = 3;
+  optional int32 live_period = 4;
+  optional int32 heading = 5;
+  optional int32 proximity_alert_radius = 6;
+}

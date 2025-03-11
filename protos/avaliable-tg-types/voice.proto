@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message voice {
+  string file_id = 1;
+  string file_unique_id = 2;
+  sint32 duration = 3;
+  optional string mime_type = 4;
+  optional sint32 file_size = 5;
+}

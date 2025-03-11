@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "message_entity.proto";
+import "poll_option.proto";
+
+message poll {
+  string id = 1;
+  string question = 2;
+  repeated message_entity question_entities = 3;
+  repeated poll_option options = 4;
+  int32 total_voter_count = 5;
+  bool is_closed = 6;
+  bool is_anonymous = 7;
+  string type = 8;
+  bool allows_multiple_answers = 9;
+  optional int32 correct_option_id = 10;
+  optional string explanation = 11;
+  repeated message_entity explanation_entities = 12;
+  optional int32 open_period = 13;
+  optional int64 close_date = 14;
+}

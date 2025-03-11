@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+import "location.proto";
+
+message business_location {
+  string address = 1;
+  optional location location = 2;
+}

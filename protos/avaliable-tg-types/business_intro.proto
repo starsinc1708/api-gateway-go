@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "sticker.proto";
+
+message business_intro {
+  optional string title = 1;
+  optional string message = 2;
+  optional sticker sticker = 3;
+}

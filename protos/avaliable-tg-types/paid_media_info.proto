@@ -1,0 +1,7 @@
+syntax = "proto3";
+import "paid_media.proto";
+
+message paid_media_info {
+  sint32 star_count = 1;
+  repeated paid_media paid_media = 2;
+}

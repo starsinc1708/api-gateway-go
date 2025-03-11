@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message mask_position  {
+  string point = 1;
+  float x_shift = 2;
+  float y_shift = 3;
+  float scale = 4;
+}

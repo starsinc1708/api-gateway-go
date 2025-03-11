@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "chat.proto";
+import "user.proto";
+
+message giveaway_winners {
+  chat chat = 1;
+  int64 giveaway_message_id = 2;
+  int64 winners_selection_date = 3;
+  int32 winner_count = 4;
+  repeated user winners = 5;
+  optional int32 additional_chat_count = 6;
+  optional int32 prize_star_count = 7;
+  optional int32 premium_subscription_month_count = 8;
+  optional int32 unclaimed_prize_count = 9;
+  optional bool only_new_members = 10;
+  optional bool was_refunded = 11;
+  optional string prize_description = 12;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message invoice {
+  string title = 1;
+  string description = 2;
+  string start_parameter = 3;
+  string currency = 4;
+  int64 total_amount = 5;
+}

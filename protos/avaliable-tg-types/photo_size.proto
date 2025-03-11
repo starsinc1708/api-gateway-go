@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message photo_size {
+  string file_id = 1;
+  string file_unique_id = 2;
+  sint32 width = 3;
+  sint32 height = 4;
+  optional sint32 file_size = 5;
+}

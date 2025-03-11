@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message business_opening_hours {
+  string time_zone_name = 1;
+  repeated business_opening_hours_interval business_opening_hours_interval = 2;
+}
+
+message business_opening_hours_interval {
+  int32 opening_minute = 1; // 0 - 8 * 24 * 60
+  int32 closing_minute = 2; // 0 - 8 * 24 * 60
+}

@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "chat_photo.proto";
+import "birthdate.proto";
+import "business_intro.proto";
+import "business_location.proto";
+import "business_opening_hours.proto";
+import "chat.proto";
+import "reaction_type.proto";
+import "message.proto";
+import "chat_permissions.proto";
+
+message chat_full_info {
+  int64 id = 1;
+  string type = 2;
+  optional string title = 3;
+  optional string username = 4;
+  optional string first_name = 5;
+  optional string last_name = 6;
+  optional bool is_forum = 7;
+  int64 accent_color_id	= 8;
+  int32 max_reaction_count = 9;
+  optional chat_photo photo = 10;
+  repeated string active_usernames = 11;
+  optional birthdate birthdate = 12;
+  optional business_intro business_intro = 13;
+  optional business_location business_location = 14;
+  optional business_opening_hours business_opening_hours = 15;
+  optional chat personal_chat = 16;
+  repeated reaction_type available_reactions = 17;
+  optional string background_custom_emoji_id = 18;
+  optional int64 profile_accent_color_id = 19;
+  optional string profile_background_custom_emoji_id = 20;
+  optional string emoji_status_custom_emoji_id = 21;
+  optional string emoji_status_expiration_date = 22;
+  optional string bio = 23;
+  optional bool has_private_forwards = 24;
+  optional bool has_restricted_voice_and_video_messages = 25;
+  optional bool join_to_send_messages = 26;
+  optional bool join_by_request = 27;
+  optional string description = 28;
+  optional string invite_link = 29;
+  optional message pinned_message = 30;
+  optional chat_permissions permissions = 31;
+  optional bool can_send_gift = 32;
+  optional bool can_send_paid_media = 33;
+  optional int32 slow_mode_delay = 34;
+  optional int32 unrestrict_boost_count = 35;
+  optional int32 message_auto_delete_time = 36;
+  optional bool has_aggressive_anti_spam_enabled = 37;
+  optional bool has_hidden_members = 38;
+  optional bool has_protected_content = 39;
+  optional bool has_visible_history = 40;
+  optional string sticker_set_name = 41;
+  optional bool can_set_sticker_set = 42;
+  optional string custom_emoji_sticker_set_name = 43;
+  optional int64 linked_chat_id = 44;
+}

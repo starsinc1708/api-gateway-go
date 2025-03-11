@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "photo_size.proto";
+
+message audio {
+  string file_id = 1;
+  string file_unique_id = 2;
+  sint32 duration = 3;
+  optional string performer = 4;
+  optional string title = 5;
+  optional string file_name = 6;
+  optional string mime_type = 7;
+  optional sint32 file_size = 8;
+  optional photo_size thumbnail = 9;
+}

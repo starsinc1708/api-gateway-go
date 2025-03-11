@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "chat.proto";
+
+message giveaway {
+  repeated chat chats = 1;
+  uint32 winners_selection_date = 2;
+  uint32 winner_count = 3;
+  optional bool only_new_members = 4;
+  optional bool has_public_winners = 5;
+  optional string prize_description = 6;
+  repeated string country_codes = 7;
+  optional uint32 prize_star_count = 8;
+  optional uint32 premium_subscription_month_count = 9;
+}

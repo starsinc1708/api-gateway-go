@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "photo_size.proto";
+
+message video_note {
+  string file_id = 1;
+  string file_unique_id = 2;
+  sint32 length = 3;
+  sint32 duration = 4;
+  optional photo_size thumbnail = 5;
+  optional sint32 file_size = 6;
+}

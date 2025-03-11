@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "message_origin.proto";
+import "chat.proto";
+import "link_preview_options.proto";
+import "animation.proto";
+import "audio.proto";
+import "document.proto";
+import "paid_media_info.proto";
+import "photo_size.proto";
+import "sticker.proto";
+import "story.proto";
+import "video.proto";
+import "video_note.proto";
+import "voice.proto";
+import "contact.proto";
+import "dice.proto";
+import "game.proto";
+import "location.proto";
+import "giveaway.proto";
+import "giveaway_winners.proto";
+import "invoice.proto";
+import "poll.proto";
+import "venue.proto";
+
+message external_reply_info {
+  message_origin origin = 1;
+  optional chat chat = 2;
+  optional int64 message_id = 3;
+  optional link_preview_options link_preview_options = 4;
+  optional animation animation = 5;
+  optional audio audio = 6;
+  optional document document = 7;
+  optional paid_media_info paid_media = 8;
+  repeated photo_size photo = 9;
+  optional sticker sticker = 10;
+  optional story story = 11;
+  optional video video = 12;
+  optional video_note video_note = 13;
+  optional voice voice = 14;
+  optional bool has_media_spoiler = 15;
+  optional contact contact = 16;
+  optional dice dice = 17;
+  optional game game = 18;
+  optional giveaway giveaway = 19;
+  optional giveaway_winners giveaway_winners = 20;
+  optional invoice invoice = 21;
+  optional location location = 22;
+  optional poll poll = 23;
+  optional venue venue = 24;
+}

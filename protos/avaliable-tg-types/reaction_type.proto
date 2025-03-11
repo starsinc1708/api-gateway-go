@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message reaction_type {
+  oneof type {
+    reaction_type_emoji reaction_type_emoji = 1;
+    reaction_type_custom_emoji reaction_type_custom_emoji = 2;
+    reaction_type_paid reaction_type_paid = 3;
+  }
+}
+
+message reaction_type_emoji {
+  string type = 1;
+  string emoji = 2;
+}
+
+message reaction_type_custom_emoji {
+  string type = 1;
+  string custom_emoji_id = 2;
+}
+
+message reaction_type_paid {
+  string type = 1;
+}

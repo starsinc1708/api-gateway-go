@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message link_preview_options {
+  optional bool is_disabled = 1;
+  optional string url = 2;
+  optional bool prefer_small_media = 3;
+  optional bool prefer_large_media = 4;
+  optional bool show_above_text = 5;
+}
