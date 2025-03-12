@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "user.proto";
+import "payment_info.proto";
+
+message pre_checkout_query {
+  string id = 1;
+  user from = 2;
+  string currency = 3;
+  int32 total_amount = 4;
+  string invoice_payload = 5;
+  optional string shipping_option_id = 6;
+  optional order_info order_info = 7;
+}

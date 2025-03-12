@@ -30,5 +30,3 @@ where-to-send-logs:
   address: host:port
 where-to-send-metrics:
   address: host:port
-
-

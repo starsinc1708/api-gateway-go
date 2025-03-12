@@ -40,7 +40,6 @@ var (
 	config Config
 	logger *zap.Logger
 
-	// Счётчик всех запросов
 	requestCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "api_gateway_requests_total",
@@ -48,7 +47,6 @@ var (
 		},
 	)
 
-	// Гистограмма запросов по типу чата
 	requestsByChatType = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "api_gateway_requests_by_chat_type",
@@ -58,7 +56,6 @@ var (
 		[]string{"chat_type"},
 	)
 
-	// Гистограмма запросов по типу обновления
 	requestsByUpdateType = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "api_gateway_requests_by_update_type",

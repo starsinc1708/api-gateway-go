@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "chat_invite_link.proto";
+import "user.proto";
+import "chat.proto";
+
+message chat_join_request {
+  chat chat = 1;
+  user from = 2;
+  int64 user_chat_id = 3;
+  int32 date = 4;
+  optional string bio = 5;
+  optional chat_invite_link invite_link = 6;
+}

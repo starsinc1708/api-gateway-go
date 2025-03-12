@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "user.proto";
+
+message chat_invite_link {
+  string invite_link = 1;
+  user creator = 2;
+  bool creates_join_request = 3;
+  bool is_primary = 4;
+  bool is_revoked = 5;
+  optional string name = 6;
+  optional int32 expire_date = 7;
+  optional int32 member_limit = 8;
+  optional int32 pending_join_request_count = 9;
+  optional int32 subscription_period = 10;
+  optional int32 subscription_price = 11;
+}
