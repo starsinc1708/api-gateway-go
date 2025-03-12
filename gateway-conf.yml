@@ -25,8 +25,3 @@ bot-modules:
         - message
         - callback_query
         - my_chat_member
-
-where-to-send-logs:
-  address: host:port
-where-to-send-metrics:
-  address: host:port
