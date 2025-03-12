@@ -106,18 +106,12 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updateType, _ := extractUpdateType(update)
-	//if !ok {
-	//	http.Error(w, "Unknown update type", http.StatusAccepted)
-	//	return
-	//}
 
 	updateSource, _ := extractUpdateSource(update, updateType)
-	//if !ok {
-	//	http.Error(w, "Unknown update source", http.StatusAccepted)
-	//	return
-	//}
 
-	logger.Info("Received update", zap.Any("update_type", updateType), zap.Any("update_source", updateSource))
+	logger.Info("1 Received update", zap.Any("update", update))
+
+	logger.Info("2 Received update", zap.Any("update_type", updateType), zap.Any("update_source", updateSource))
 
 	requestsByUpdateType.WithLabelValues(updateType).Observe(1)
 
