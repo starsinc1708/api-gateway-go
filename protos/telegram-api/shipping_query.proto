@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "user.proto";
+import "shipping_address.proto";
+
+message shipping_query {
+  string id = 1;
+  user from = 2;
+  string invoice_payload = 3;
+  shipping_address shipping_address = 4;
+}

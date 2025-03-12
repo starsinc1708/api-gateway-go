@@ -1,6 +1,7 @@
 package main
 
 import (
+	telegram_api "api-gateway/internal/generated/telegram-api"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -112,32 +113,16 @@ func main() {
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
-	requestCount.Inc()
+	var update telegram_api.Update
 
-	var update map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
+		logger.Error("Failed to decode JSON", zap.Error(err))
 		return
 	}
 
+	// Логируем полученный update
 	logger.Info("Received update", zap.Any("update", update))
-
-	chatType, ok := extractChatType(update)
-	if !ok {
-		http.Error(w, "Unknown chat type", http.StatusBadRequest)
-		return
-	}
-
-	updateType, ok := extractUpdateType(update)
-	if !ok {
-		http.Error(w, "Unknown update type", http.StatusBadRequest)
-		return
-	}
-
-	requestsByChatType.WithLabelValues(chatType).Observe(1)
-	requestsByUpdateType.WithLabelValues(updateType).Observe(1)
-
-	dispatchUpdate(chatType, updateType, update)
 }
 
 func extractChatType(update map[string]interface{}) (string, bool) {

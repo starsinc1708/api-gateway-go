@@ -1,0 +1,9 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "chat.proto";
+
+message story {
+  chat chat = 1;
+  int64 id = 2;
+}

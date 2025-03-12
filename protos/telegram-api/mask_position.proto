@@ -1,0 +1,9 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+message mask_position  {
+  string point = 1;
+  float x_shift = 2;
+  float y_shift = 3;
+  float scale = 4;
+}

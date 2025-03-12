@@ -1,0 +1,6 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+message message_auto_delete_timer_changed {
+  sint32 message_auto_delete_time = 1;
+}

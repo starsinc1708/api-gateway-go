@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "user.proto";
+
+message proximity_alert_triggered {
+  user traveler = 1;
+  user watcher = 2;
+  int32 distance = 3;
+}

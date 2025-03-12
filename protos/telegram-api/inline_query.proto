@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "location.proto";
+import "user.proto";
+
+message inline_query {
+  string id = 1;
+  user from = 2;
+  string query = 3;
+  string offset = 4;
+  optional string chat_type = 5;
+  optional location location = 6;
+}

@@ -1,0 +1,45 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "web_app_data.proto";
+
+message inline_keyboard_markup {
+  repeated inline_keyboard_button inline_keyboard = 1;
+}
+
+message inline_keyboard_button {
+  string text = 1;
+  optional string url = 2;
+  optional string callback_data = 3;
+  optional web_app_info web_app = 4;
+  optional login_url login_url = 5;
+  optional string switch_inline_query = 6;
+  optional string switch_inline_query_current_chat = 7;
+  optional switch_inline_query_chosen_chat switch_inline_query_chosen_chat = 8;
+  optional copy_text_button copy_text = 9;
+  optional callback_game callback_game = 10;
+  optional bool pay = 11;
+}
+
+message login_url {
+  string url = 1;
+  optional string forward_text = 2;
+  optional string bot_username = 3;
+  optional bool request_write_access = 4;
+}
+
+message switch_inline_query_chosen_chat {
+  optional string query = 1;
+  optional bool allow_user_chats = 2;
+  optional bool allow_bot_chats = 3;
+  optional bool allow_group_chats = 4;
+  optional bool allow_channel_chats = 5;
+}
+
+message copy_text_button {
+  string text = 1;
+}
+
+message callback_game {
+  // No fields
+}

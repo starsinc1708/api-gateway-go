@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+message web_app_data {
+  string data = 1;
+  string button_text = 2;
+}
+
+message web_app_info {
+  string url = 1;
+}

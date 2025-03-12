@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "media.proto";
+import "message_entity.proto";
+
+message game {
+  string title = 1;
+  string description = 2;
+  repeated photo_size photo = 3;
+  optional string text = 4;
+  repeated message_entity text_entities = 5;
+  optional animation animation = 6;
+}

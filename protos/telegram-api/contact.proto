@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+message contact {
+  string phone_number = 1;
+  string first_name = 2;
+  string last_name = 3;
+  int64 user_id = 4;
+  string vcard = 5;
+}

@@ -1,0 +1,72 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "media.proto";
+import "shipping_address.proto";
+
+message invoice {
+  string title = 1;
+  string description = 2;
+  string start_parameter = 3;
+  string currency = 4;
+  int64 total_amount = 5;
+}
+
+message paid_media_info {
+  sint32 star_count = 1;
+  repeated paid_media paid_media = 2;
+}
+
+message paid_media {
+  oneof type {
+    paid_media_preview paid_media_preview = 1;
+    paid_media_photo paid_media_photo = 2;
+    paid_media_video paid_media_video = 3;
+  }
+}
+
+message paid_media_preview {
+  string type = 1;
+  optional sint32 width = 2;
+  optional sint32 height = 3;
+  optional sint32 duration = 4;
+}
+
+message paid_media_photo {
+  string type = 1;
+  repeated photo_size photo = 2;
+}
+
+message paid_media_video {
+  string type = 1;
+  repeated video video = 2;
+}
+
+message successful_payment {
+  string currency = 1;
+  int64 total_amount = 2;
+  string invoice_payload = 3;
+  optional int64 subscription_expiration_date = 4;
+  optional bool is_recurring = 5;
+  optional bool is_first_recurring = 6;
+  optional string shipping_option_id = 7;
+  optional order_info order_info = 8;
+  string telegram_payment_charge_id = 9;
+  string provider_payment_charge_id = 10;
+}
+
+message refunded_payment {
+  string currency = 1;
+  int64 total_amount = 2;
+  string invoice_payload = 3;
+  string telegram_payment_charge_id = 4;
+  optional string provider_payment_charge_id = 5;
+}
+
+message order_info {
+  optional string name = 1;
+  optional string phone_number = 2;
+  optional string email = 3;
+  optional shipping_address shipping_address = 4;
+}
+

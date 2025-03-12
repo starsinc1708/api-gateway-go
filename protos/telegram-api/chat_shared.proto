@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "generated/telegram-api";
+
+import "media.proto";
+
+message chat_shared {
+  int64 request_id = 1;
+  int64 chat_id = 2;
+  optional string title = 3;
+  optional string username = 4;
+  repeated photo_size photo = 5;
+}
