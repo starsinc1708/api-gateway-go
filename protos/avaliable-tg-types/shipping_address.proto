@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message shipping_address {
+  string country_code = 1;
+  string state = 2;
+  string city = 3;
+  string street_line1 = 4;
+  string street_line2 = 5;
+  string post_code = 6;
+}

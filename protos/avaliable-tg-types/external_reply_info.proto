@@ -3,25 +3,16 @@ syntax = "proto3";
 import "message_origin.proto";
 import "chat.proto";
 import "link_preview_options.proto";
-import "animation.proto";
-import "audio.proto";
-import "document.proto";
-import "paid_media_info.proto";
-import "photo_size.proto";
-import "sticker.proto";
-import "story.proto";
-import "video.proto";
-import "video_note.proto";
-import "voice.proto";
+import "story.proto";;
 import "contact.proto";
 import "dice.proto";
 import "game.proto";
 import "location.proto";
 import "giveaway.proto";
-import "giveaway_winners.proto";
-import "invoice.proto";
 import "poll.proto";
 import "venue.proto";
+import "media.proto";
+import "payment_info.proto";
 
 message external_reply_info {
   message_origin origin = 1;

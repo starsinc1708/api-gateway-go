@@ -1,7 +1,6 @@
 syntax = "proto3";
-import "photo_size.proto";
 import "message_entity.proto";
-import "animation.proto";
+import "media.proto";
 
 message game {
   string title = 1;

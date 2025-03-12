@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message chat_boost_added {
+  uint32 boost_count = 1;
+}

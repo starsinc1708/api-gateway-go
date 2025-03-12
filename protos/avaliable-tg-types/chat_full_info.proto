@@ -2,13 +2,11 @@ syntax = "proto3";
 
 import "chat_photo.proto";
 import "birthdate.proto";
-import "business_intro.proto";
-import "business_location.proto";
-import "business_opening_hours.proto";
 import "chat.proto";
 import "reaction_type.proto";
 import "message.proto";
 import "chat_permissions.proto";
+import "business.proto";
 
 message chat_full_info {
   int64 id = 1;

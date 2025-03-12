@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "message_entity.proto";
-import "poll_option.proto";
 
 message poll {
   string id = 1;
@@ -18,4 +17,10 @@ message poll {
   repeated message_entity explanation_entities = 12;
   optional int32 open_period = 13;
   optional int64 close_date = 14;
+}
+
+message poll_option {
+  string text = 1;
+  repeated message_entity text_entities = 2;
+  int32 voter_count = 3;
 }

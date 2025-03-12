@@ -1,8 +1,0 @@
-syntax = "proto3";
-import "message_entity.proto";
-
-message poll_option {
-  string text = 1;
-  repeated message_entity text_entities = 2;
-  int32 voter_count = 3;
-}
