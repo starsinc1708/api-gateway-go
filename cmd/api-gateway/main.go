@@ -61,14 +61,15 @@ var (
 type UpdateSource string
 
 const (
-	UpdateSourceBusinessAccount UpdateSource = "business_account"
-	UpdateSourceChannel         UpdateSource = "channel"
-	UpdateSourceGroup           UpdateSource = "group"
-	UpdateSourceSuperGroup      UpdateSource = "super_group"
-	UpdateSourcePrivateChat     UpdateSource = "private_chat"
-	UpdateSourceInlineMode      UpdateSource = "inline_mode"
-	UpdateSourcePayment         UpdateSource = "payment"
-	UpdateSourceUnknown         UpdateSource = "unknown"
+	BusinessAccount UpdateSource = "business_account"
+	Channel         UpdateSource = "channel"
+	Group           UpdateSource = "group"
+	SuperGroup      UpdateSource = "super_group"
+	PrivateChat     UpdateSource = "private_chat"
+	InlineMode      UpdateSource = "inline_mode"
+	Payment         UpdateSource = "payment"
+	Poll            UpdateSource = "poll"
+	Unknown         UpdateSource = "unknown"
 )
 
 func init() {
@@ -124,7 +125,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateSource, bool) {
 	if updateType == "business_connection" || updateType == "deleted_business_messages" || updateType == "edited_business_message" {
-		return UpdateSourceBusinessAccount, true
+		return BusinessAccount, true
 	}
 	if updateType == "callback_query" {
 		chatType := update.CallbackQuery.Message.GetInaccessibleMessage().Chat.Type
@@ -134,7 +135,7 @@ func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateS
 		return getSourceFromChatType(chatType), true
 	}
 	if updateType == "channel_post" || updateType == "edited_channel_post" {
-		return UpdateSourceChannel, true
+		return Channel, true
 	}
 	if updateType == "chat_boost" {
 		return getSourceFromChatType(update.ChatBoost.Chat.Type), true
@@ -152,7 +153,7 @@ func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateS
 		return getSourceFromChatType(update.MyChatMember.Chat.Type), true
 	}
 	if updateType == "chosen_inline_result" || updateType == "inline_query" {
-		return UpdateSourceInlineMode, true
+		return InlineMode, true
 	}
 	if updateType == "message" {
 		return getSourceFromChatType(update.Message.Chat.Type), false
@@ -160,26 +161,33 @@ func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateS
 	if updateType == "edited_message" {
 		return getSourceFromChatType(update.EditedMessage.Chat.Type), false
 	}
-
-	/*if updateType == "poll" || updateType == "poll_answer" {
-		return getSourceFromChatType(update.Poll.)
-	}*/
-
-	return "", false
+	if updateType == "poll" || updateType == "poll_answer" {
+		return Poll, true
+	}
+	if updateType == "pre_checkout_query" || updateType == "purchased_paid_media" || updateType == "shipping_query" {
+		return Payment, true
+	}
+	if updateType == "message_reaction" {
+		return getSourceFromChatType(update.MessageReaction.Chat.Type), true
+	}
+	if updateType == "message_reaction_count" {
+		return getSourceFromChatType(update.MessageReactionCount.Chat.Type), true
+	}
+	return Unknown, false
 }
 
 func getSourceFromChatType(chatType string) UpdateSource {
 	switch chatType {
 	case "group":
-		return UpdateSourceGroup
+		return Group
 	case "super_group":
-		return UpdateSourceSuperGroup
+		return SuperGroup
 	case "private":
-		return UpdateSourcePrivateChat
+		return PrivateChat
 	case "channel":
-		return UpdateSourceChannel
+		return Channel
 	default:
-		return UpdateSourceUnknown
+		return Unknown
 	}
 }
 
