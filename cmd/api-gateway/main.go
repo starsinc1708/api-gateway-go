@@ -170,13 +170,13 @@ func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateS
 
 func getSourceFromChatType(chatType string) UpdateSource {
 	switch chatType {
-	case "Group":
+	case "group":
 		return UpdateSourceGroup
-	case "Supergroup":
+	case "super_group":
 		return UpdateSourceSuperGroup
-	case "Private":
+	case "private":
 		return UpdateSourcePrivateChat
-	case "Channel":
+	case "channel":
 		return UpdateSourceChannel
 	default:
 		return UpdateSourceUnknown
