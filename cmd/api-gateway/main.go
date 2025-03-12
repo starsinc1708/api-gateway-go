@@ -174,7 +174,7 @@ func getSourceFromChatType(chatType string) UpdateSource {
 	switch chatType {
 	case "group":
 		return Group
-	case "super_group":
+	case "supergroup":
 		return SuperGroup
 	case "private":
 		return PrivateChat
