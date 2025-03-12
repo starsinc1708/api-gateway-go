@@ -61,24 +61,14 @@ var (
 type UpdateSource string
 
 const (
-	UpdateSourceBusinessAccount UpdateSource = "BusinessAccount"
-	UpdateSourceChannel         UpdateSource = "Channel"
-	UpdateSourceGroup           UpdateSource = "Group"
-	UpdateSourceSuperGroup      UpdateSource = "SuperGroup"
-	UpdateSourcePrivateChat     UpdateSource = "PrivateChat"
-	UpdateSourceInlineMode      UpdateSource = "InlineMode"
-	UpdateSourcePoll            UpdateSource = "Poll"
-	UpdateSourcePayment         UpdateSource = "Payment"
-	UpdateSourceUnknown         UpdateSource = "Unknown"
-)
-
-type ChatType string
-
-const (
-	ChatTypePrivate    ChatType = "private"
-	ChatTypeGroup      ChatType = "group"
-	ChatTypeSupergroup ChatType = "supergroup"
-	ChatTypeChannel    ChatType = "channel"
+	UpdateSourceBusinessAccount UpdateSource = "business_account"
+	UpdateSourceChannel         UpdateSource = "channel"
+	UpdateSourceGroup           UpdateSource = "group"
+	UpdateSourceSuperGroup      UpdateSource = "super_group"
+	UpdateSourcePrivateChat     UpdateSource = "private_chat"
+	UpdateSourceInlineMode      UpdateSource = "inline_mode"
+	UpdateSourcePayment         UpdateSource = "payment"
+	UpdateSourceUnknown         UpdateSource = "unknown"
 )
 
 func init() {
@@ -110,20 +100,87 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	var update telegram_api.Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusAccepted)
 		return
 	}
 
 	updateType, ok := extractUpdateType(update)
 	if !ok {
-		http.Error(w, "Unknown chat type", http.StatusBadRequest)
+		http.Error(w, "Unknown update type", http.StatusAccepted)
 		return
 	}
 
-	logger.Info("Received update", zap.Any("update_type", updateType))
+	updateSource, ok := extractUpdateSource(update, updateType)
+	if !ok {
+		http.Error(w, "Unknown update source", http.StatusAccepted)
+		return
+	}
+
+	logger.Info("Received update", zap.Any("update_type", updateType), zap.Any("update_source", updateSource))
 
 	requestsByUpdateType.WithLabelValues(updateType).Observe(1)
 
+}
+
+func extractUpdateSource(update telegram_api.Update, updateType string) (UpdateSource, bool) {
+	if updateType == "business_connection" || updateType == "deleted_business_messages" || updateType == "edited_business_message" {
+		return UpdateSourceBusinessAccount, true
+	}
+	if updateType == "callback_query" {
+		chatType := update.CallbackQuery.Message.GetInaccessibleMessage().Chat.Type
+		if chatType == "" {
+			chatType = update.CallbackQuery.Message.GetMessage().Chat.Type
+		}
+		return getSourceFromChatType(chatType), true
+	}
+	if updateType == "channel_post" || updateType == "edited_channel_post" {
+		return UpdateSourceChannel, true
+	}
+	if updateType == "chat_boost" {
+		return getSourceFromChatType(update.ChatBoost.Chat.Type), true
+	}
+	if updateType == "removed_chat_boost" {
+		return getSourceFromChatType(update.RemovedChatBoost.Chat.Type), true
+	}
+	if updateType == "chat_member" {
+		return getSourceFromChatType(update.ChatMember.Chat.Type), true
+	}
+	if updateType == "chat_join_request" {
+		return getSourceFromChatType(update.ChatJoinRequest.Chat.Type), true
+	}
+	if updateType == "my_chat_member" {
+		return getSourceFromChatType(update.MyChatMember.Chat.Type), true
+	}
+	if updateType == "chosen_inline_result" || updateType == "inline_query" {
+		return UpdateSourceInlineMode, true
+	}
+	if updateType == "message" {
+		return getSourceFromChatType(update.Message.Chat.Type), false
+	}
+	if updateType == "edited_message" {
+		return getSourceFromChatType(update.EditedMessage.Chat.Type), false
+	}
+
+	/*if updateType == "poll" || updateType == "poll_answer" {
+		return getSourceFromChatType(update.Poll.)
+	}*/
+
+	return "", false
+}
+
+func getSourceFromChatType(chatType string) UpdateSource {
+	switch chatType {
+	case "Group":
+		return UpdateSourceGroup
+	case "Supergroup":
+		return UpdateSourceSuperGroup
+	case "Private":
+		return UpdateSourcePrivateChat
+	case "Channel":
+		return UpdateSourceChannel
+	default:
+		return UpdateSourceUnknown
+	}
 }
 
 func extractUpdateType(update telegram_api.Update) (string, bool) {
