@@ -109,7 +109,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	updateSource, _ := extractUpdateSource(update, updateType)
 
-	logger.Info("1 Received update", zap.Any("update", update))
+	//logger.Info("1 Received update", zap.Any("update", update))
 
 	logger.Info("2 Received update", zap.Any("update_type", updateType), zap.Any("update_source", updateSource))
 
