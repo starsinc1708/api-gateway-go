@@ -11,8 +11,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v3"
 )
 
@@ -167,7 +165,7 @@ func dispatchUpdate(chatType, updateType string, update map[string]interface{}) 
 		if updates, ok := settings.AllowedUpdates[chatType]; ok {
 			for _, allowedUpdate := range updates {
 				if allowedUpdate == updateType {
-					go sendToModule(module, settings.Grpc.Host, settings.Grpc.Port, update)
+					go sendToModule(module)
 					return
 				}
 			}
@@ -175,13 +173,6 @@ func dispatchUpdate(chatType, updateType string, update map[string]interface{}) 
 	}
 }
 
-func sendToModule(module, host string, port int, update map[string]interface{}) {
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", host, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		logger.Error("Failed to connect to module", zap.String("module", module), zap.Error(err))
-		return
-	}
-	defer conn.Close()
-
+func sendToModule(module string) {
 	logger.Info("Sent update to module", zap.String("module", module))
 }
