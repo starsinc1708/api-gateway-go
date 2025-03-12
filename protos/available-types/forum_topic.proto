@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+message forum_topic {
+  int32 message_thread_id = 1;
+  string name = 2;
+  int32 icon_color = 3;
+  optional string icon_custom_emoji_id = 4;
+}
+
+message forum_topic_created {
+  string name = 1;
+  int32 icon_color = 2;
+  optional string icon_custom_emoji_id = 3;
+}
+
+message forum_topic_edited {
+  optional string name = 1;
+  optional string icon_custom_emoji_id = 2;
+}
+
+message forum_topic_closed {
+  // No fields
+}
+
+message forum_topic_reopened {
+  // No fields
+}
+
+message general_forum_topic_hidden {
+  // No fields
+}
+
+message general_forum_topic_unhidden {
+  // No fields
+}
+
+

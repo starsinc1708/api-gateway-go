@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message bot_command {
+  string command = 1;
+  string description = 2;
+}

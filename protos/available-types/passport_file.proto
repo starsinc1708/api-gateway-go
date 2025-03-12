@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message passport_file {
+  string file_id = 1;
+  string file_unique_id = 2;
+  int32 file_size = 3;
+  int32 file_date = 4;
+}

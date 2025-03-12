@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message dice {
+  string emoji = 1;
+  sint32 value = 2;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message chat {
+  int64 id = 1;
+  string type = 2;
+  optional string title = 3;
+  optional string username = 4;
+  optional string first_name = 5;
+  optional string last_name = 6;
+  optional bool is_forum = 7;
+}

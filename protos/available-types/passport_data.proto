@@ -1,0 +1,8 @@
+syntax = "proto3";
+import "encrypted_passport_element.proto";
+import "encrypted_credentials.proto";
+
+message passport_data {
+  repeated encrypted_passport_element data = 1;
+  encrypted_credentials credentials = 2;
+}

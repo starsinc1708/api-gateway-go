@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "location.proto";
+
+message venue {
+  location location = 1;
+  string title = 2;
+  string address = 3;
+  optional string foursquare_id = 4;
+  optional string foursquare_type = 5;
+  optional string google_place_id = 6;
+  optional string google_place_type = 7;
+}
