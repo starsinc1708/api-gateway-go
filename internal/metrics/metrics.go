@@ -89,7 +89,7 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		}
 
 		requestsTotal.WithLabelValues(updateType, updateSource).Inc()
-		latencyHistogram.WithLabelValues(updateType).Observe(duration)
+		latencyHistogram.WithLabelValues().Observe(duration)
 
 		statusCategory := strconv.Itoa(rw.status/100) + "xx"
 		responseStatusCounter.WithLabelValues(statusCategory).Inc()
