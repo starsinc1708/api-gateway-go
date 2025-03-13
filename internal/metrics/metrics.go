@@ -61,6 +61,23 @@ var (
 		},
 		[]string{"code"},
 	)
+
+	RequestsPerSecond = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "api_gateway_requests_per_second_total",
+			Help: "Total number of requests per second",
+		},
+		[]string{},
+	)
+
+	RequestLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "api_gateway_request_latency_seconds",
+			Help:    "Latency of request processing",
+			Buckets: []float64{0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5}, // Определите корзины для гистограммы
+		},
+		[]string{"update_type", "update_source"},
+	)
 )
 
 func Init() {
@@ -69,6 +86,8 @@ func Init() {
 		RequestsByUpdateSource,
 		RequestDurationByTypeAndSource,
 		ResponseStatus,
+		RequestsPerSecond,
+		RequestLatency,
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
@@ -94,9 +113,18 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		updateType := data.updateType
 		updateSource := data.updateSource
 
+		if updateType == "" {
+			updateType = "unknown"
+		}
+		if updateSource == "" {
+			updateSource = "unknown"
+		}
+
 		RequestsByUpdateType.WithLabelValues(updateType).Inc()
 		RequestsByUpdateSource.WithLabelValues(updateSource).Inc()
 		RequestDurationByTypeAndSource.WithLabelValues(updateType, updateSource).Observe(duration)
+		RequestLatency.WithLabelValues(updateType, updateSource).Observe(duration)
+		RequestsPerSecond.WithLabelValues().Inc()
 
 		ResponseStatus.WithLabelValues(strconv.Itoa(rw.status)).Inc()
 
