@@ -30,9 +30,5 @@ func HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	metrics.SetUpdateTypeAndSource(r, updateType, string(updateSource))
-	if updateType == "unknown" && updateSource == "unknown" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 	w.WriteHeader(http.StatusOK)
 }

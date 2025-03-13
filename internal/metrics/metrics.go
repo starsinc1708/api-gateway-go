@@ -26,70 +26,40 @@ type metricsData struct {
 
 var (
 	registry = prometheus.NewRegistry()
-)
 
-var (
-	RequestsByUpdateType = prometheus.NewCounterVec(
+	requestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "api_gateway_requests_by_update_type_total",
-			Help: "Total number of requests by update type",
+			Name: "api_requests_total",
+			Help: "Total number of API requests",
 		},
-		[]string{"update_type"},
+		[]string{"updateType", "updateSource"},
 	)
 
-	RequestsByUpdateSource = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "api_gateway_requests_by_update_source_total",
-			Help: "Total number of requests by update source",
-		},
-		[]string{"update_source"},
-	)
-
-	RequestDurationByTypeAndSource = prometheus.NewHistogramVec(
+	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:    "api_gateway_request_duration_seconds_by_type_and_source",
-			Help:    "Duration of request processing",
-			Buckets: []float64{0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5},
+			Name:    "api_request_duration_seconds",
+			Help:    "Request latency in seconds",
+			Buckets: []float64{0.1, 0.3, 0.5, 0.8, 1, 2, 5},
 		},
-		[]string{"update_type", "update_source"},
+		[]string{"updateType"},
 	)
 
-	ResponseStatus = prometheus.NewCounterVec(
+	responseStatusCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "api_gateway_response_status_total",
-			Help: "Total number of responses by status code",
+			Name: "api_response_status_count",
+			Help: "Count of response status codes",
 		},
-		[]string{"code"},
-	)
-
-	RequestsPerSecond = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "api_gateway_requests_per_second_total",
-			Help: "Total number of requests per second",
-		},
-		[]string{},
-	)
-
-	RequestLatency = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name:    "api_gateway_request_latency_seconds",
-			Help:    "Latency of request processing",
-			Buckets: []float64{0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5}, // Определите корзины для гистограммы
-		},
-		[]string{"update_type", "update_source"},
+		[]string{"status"},
 	)
 )
 
 func Init() {
 	registry.MustRegister(
-		RequestsByUpdateType,
-		RequestsByUpdateSource,
-		RequestDurationByTypeAndSource,
-		ResponseStatus,
-		RequestsPerSecond,
-		RequestLatency,
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+		requestsTotal,
+		latencyHistogram,
+		responseStatusCounter,
 	)
 }
 
@@ -113,29 +83,19 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		updateType := data.updateType
 		updateSource := data.updateSource
 
-		if updateType == "" {
-			updateType = "unknown"
-		}
-		if updateSource == "" {
-			updateSource = "unknown"
-		}
-
-		RequestsByUpdateType.WithLabelValues(updateType).Inc()
-		RequestsByUpdateSource.WithLabelValues(updateSource).Inc()
-		RequestDurationByTypeAndSource.WithLabelValues(updateType, updateSource).Observe(duration)
-		RequestLatency.WithLabelValues(updateType, updateSource).Observe(duration)
-		RequestsPerSecond.WithLabelValues().Inc()
-
-		ResponseStatus.WithLabelValues(strconv.Itoa(rw.status)).Inc()
-
 		if rw.status != 200 {
-			logger.ZapLogger.Warn("update type or source not defined",
-				zap.String("updateType", updateType),
-				zap.String("updateSource", updateSource),
-			)
+			logger.ZapLogger.Warn("update type or source not defined")
 			return
 		}
+
+		requestsTotal.WithLabelValues(updateType, updateSource).Inc()
+		latencyHistogram.WithLabelValues(updateType).Observe(duration)
+
+		statusCategory := strconv.Itoa(rw.status/100) + "xx"
+		responseStatusCounter.WithLabelValues(statusCategory).Inc()
+
 		logger.ZapLogger.Info("update processed",
+			zap.String("duration", strconv.FormatFloat(duration, 'f', -1, 64)),
 			zap.String("updateType", updateType),
 			zap.String("updateSource", updateSource),
 		)
