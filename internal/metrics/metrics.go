@@ -41,7 +41,7 @@ var (
 			Help:    "Request latency in seconds",
 			Buckets: []float64{0.1, 0.3, 0.5, 0.8, 1, 2, 5},
 		},
-		[]string{"updateType"},
+		[]string{},
 	)
 
 	responseStatusCounter = prometheus.NewCounterVec(
