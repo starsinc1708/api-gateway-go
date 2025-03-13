@@ -1,5 +1,5 @@
 api-gateway:
-  port: 9000
+  port: 8082
   endpoint: tg-updates
 
 bot-modules:

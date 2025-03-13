@@ -23,14 +23,12 @@ func main() {
 	logger.InitLogger(cfg.Logs.Address)
 	defer logger.Logger.Sync()
 
-	// Инициализация метрик (гарантированно один раз)
-	metrics.InitMetrics()
+	// Регистрация метрик (гарантированно только один раз)
+	metrics.RegisterMetrics()
 
-	// Регистрация обработчика с middleware для метрик
-	http.Handle("/"+cfg.ApiGateway.Endpoint, metrics.MetricsMiddleware(http.HandlerFunc(handlers.HandleUpdate)))
-
-	// Регистрация эндпоинта для Prometheus метрик
+	// Роуты
 	http.Handle("/metrics", metrics.Handler())
+	http.Handle("/"+cfg.ApiGateway.Endpoint, metrics.MetricsMiddleware(http.HandlerFunc(handlers.HandleUpdate)))
 
 	// Запуск сервера
 	addr := fmt.Sprintf(":%d", cfg.ApiGateway.Port)

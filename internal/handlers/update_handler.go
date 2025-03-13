@@ -1,20 +1,18 @@
 package handlers
 
 import (
-	"api-gateway/internal/logger"
-	"encoding/json"
-	"net/http"
-	"time"
-
 	"api-gateway/internal/generated/telegram-api"
+	"api-gateway/internal/logger"
 	"api-gateway/internal/metrics"
 	"api-gateway/internal/services"
+	"context"
+	"encoding/json"
+	"net/http"
+
 	"go.uber.org/zap"
 )
 
 func HandleUpdate(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-
 	var update telegram_api.Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		logger.Logger.Error("Failed to decode request body", zap.Error(err))
@@ -31,22 +29,20 @@ func HandleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	updateSource, ok := services.ExtractUpdateSource(update, updateType)
 	if !ok {
-		logger.Logger.Error("Failed to extract update source", zap.String("update_type", updateType), zap.Any("update", update))
+		logger.Logger.Error("Failed to extract update source",
+			zap.String("update_type", updateType),
+			zap.Any("update", update))
 		http.Error(w, "Failed to extract update source", http.StatusBadRequest)
 		return
 	}
 
-	metrics.RequestsByUpdateType.WithLabelValues(updateType).Inc()
-	metrics.RequestsByUpdateSource.WithLabelValues(string(updateSource)).Inc()
-	metrics.RequestsPerSecond.WithLabelValues(updateType, string(updateSource)).Inc()
+	ctx := context.WithValue(r.Context(), metrics.UpdateTypeKey, updateType)
+	ctx = context.WithValue(ctx, metrics.UpdateSourceKey, updateSource)
+	*r = *r.WithContext(ctx)
 
-	duration := time.Since(start).Seconds()
-	metrics.RequestDuration.WithLabelValues(updateType, string(updateSource)).Observe(duration)
-
-	logger.Logger.Info("processed update",
+	logger.Logger.Info("Processing update",
 		zap.String("update_type", updateType),
 		zap.String("update_source", string(updateSource)),
-		zap.Float64("processing_time", duration),
 	)
 
 	w.WriteHeader(http.StatusOK)
