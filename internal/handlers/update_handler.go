@@ -18,7 +18,7 @@ func HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-
+	logger.ZapLogger.Info("Handle Update", zap.String("update", update.String()))
 	updateType := services.ExtractUpdateType(update)
 	updateSource := services.ExtractUpdateSource(update, updateType)
 
