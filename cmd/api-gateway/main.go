@@ -13,25 +13,20 @@ import (
 )
 
 func main() {
-	// Загрузка конфигурации
 	cfg, err := config.LoadConfig("gateway-conf.yml")
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Инициализация логгера
-	logger.InitLogger(cfg.Logs.Address)
-	defer logger.Logger.Sync()
+	logger.InitZapLogger(cfg.Logs.Address)
+	defer logger.ZapLogger.Sync()
 
-	// Регистрация метрик (гарантированно только один раз)
-	metrics.RegisterMetrics()
+	metrics.Init()
 
-	// Роуты
 	http.Handle("/metrics", metrics.Handler())
 	http.Handle("/"+cfg.ApiGateway.Endpoint, metrics.MetricsMiddleware(http.HandlerFunc(handlers.HandleUpdate)))
 
-	// Запуск сервера
 	addr := fmt.Sprintf(":%d", cfg.ApiGateway.Port)
-	logger.Logger.Info("Starting API Gateway", zap.String("port", addr))
+	logger.ZapLogger.Info("Starting API Gateway", zap.String("port", addr))
 	log.Fatal(http.ListenAndServe(addr, nil))
 }

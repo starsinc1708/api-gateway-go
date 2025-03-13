@@ -6,7 +6,7 @@ const (
 	BusinessAccount UpdateSource = "business_account"
 	Channel         UpdateSource = "channel"
 	Group           UpdateSource = "group"
-	SuperGroup      UpdateSource = "super_group"
+	SuperGroup      UpdateSource = "supergroup"
 	PrivateChat     UpdateSource = "private_chat"
 	InlineMode      UpdateSource = "inline_mode"
 	Payment         UpdateSource = "payment"

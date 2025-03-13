@@ -1,21 +1,31 @@
 package metrics
 
 import (
-	"net/http"
-	"sync"
-	"time"
-
-	"github.com/prometheus/client_golang/prometheus"
+	"api-gateway/internal/logger"
+	"context"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type contextKey string
 
 const (
-	UpdateTypeKey   contextKey = "updateType"
-	UpdateSourceKey contextKey = "updateSource"
+	MetricsDataKey contextKey = "metricsData"
+)
+
+type metricsData struct {
+	updateType   string
+	updateSource string
+}
+
+var (
+	registry = prometheus.NewRegistry()
 )
 
 var (
@@ -35,9 +45,9 @@ var (
 		[]string{"update_source"},
 	)
 
-	RequestDuration = prometheus.NewHistogramVec(
+	RequestDurationByTypeAndSource = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:    "api_gateway_request_duration_seconds",
+			Name:    "api_gateway_request_duration_seconds_by_type_and_source",
 			Help:    "Duration of request processing",
 			Buckets: []float64{0.001, 0.01, 0.1, 0.3, 0.5, 1, 2, 5},
 		},
@@ -53,28 +63,17 @@ var (
 	)
 )
 
-// Новый реестр Prometheus (чтобы избежать дубликатов)
-var (
-	once     sync.Once
-	registry = prometheus.NewRegistry()
-)
-
-// RegisterMetrics - регистрирует метрики (только один раз)
-func RegisterMetrics() {
-	once.Do(func() {
-		// Используем новый реестр вместо глобального
-		registry.MustRegister(
-			RequestsByUpdateType,
-			RequestsByUpdateSource,
-			RequestDuration,
-			ResponseStatus,
-			collectors.NewGoCollector(), // системные метрики Go
-		)
-		zap.L().Info("Prometheus metrics registered successfully")
-	})
+func Init() {
+	registry.MustRegister(
+		RequestsByUpdateType,
+		RequestsByUpdateSource,
+		RequestDurationByTypeAndSource,
+		ResponseStatus,
+		collectors.NewGoCollector(),
+		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	)
 }
 
-// Handler возвращает HTTP-обработчик для Prometheus
 func Handler() http.Handler {
 	return promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 }
@@ -84,32 +83,42 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 		rw := &responseWriter{ResponseWriter: w, status: http.StatusOK}
 
+		data := &metricsData{}
+		ctx := context.WithValue(r.Context(), MetricsDataKey, data)
+		r = r.WithContext(ctx)
+
 		next.ServeHTTP(rw, r)
 
 		duration := time.Since(start).Seconds()
-		updateType, _ := r.Context().Value(UpdateTypeKey).(string)
-		updateSource, _ := r.Context().Value(UpdateSourceKey).(string)
 
-		if updateType == "" {
-			updateType = "unknown"
-		}
-		if updateSource == "" {
-			updateSource = "unknown"
-		}
+		updateType := data.updateType
+		updateSource := data.updateSource
 
-		// Логирование обновления метрик
-		zap.L().Info("Updating Prometheus metrics",
-			zap.String("update_type", updateType),
-			zap.String("update_source", updateSource),
-			zap.Float64("duration", duration),
-			zap.Int("status", rw.status),
-		)
-
-		RequestDuration.WithLabelValues(updateType, updateSource).Observe(duration)
 		RequestsByUpdateType.WithLabelValues(updateType).Inc()
 		RequestsByUpdateSource.WithLabelValues(updateSource).Inc()
-		ResponseStatus.WithLabelValues(http.StatusText(rw.status)).Inc()
+		RequestDurationByTypeAndSource.WithLabelValues(updateType, updateSource).Observe(duration)
+
+		ResponseStatus.WithLabelValues(strconv.Itoa(rw.status)).Inc()
+
+		if rw.status != 200 {
+			logger.ZapLogger.Warn("update type or source not defined",
+				zap.String("updateType", updateType),
+				zap.String("updateSource", updateSource),
+			)
+			return
+		}
+		logger.ZapLogger.Info("update processed",
+			zap.String("updateType", updateType),
+			zap.String("updateSource", updateSource),
+		)
 	})
+}
+
+func SetUpdateTypeAndSource(r *http.Request, updateType, updateSource string) {
+	if data, ok := r.Context().Value(MetricsDataKey).(*metricsData); ok {
+		data.updateType = updateType
+		data.updateSource = updateSource
+	}
 }
 
 type responseWriter struct {
