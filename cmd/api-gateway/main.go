@@ -24,7 +24,7 @@ func main() {
 	metrics.Init()
 
 	http.Handle("/metrics", metrics.Handler())
-	http.Handle("/"+cfg.ApiGateway.Endpoint, metrics.MetricsMiddleware(http.HandlerFunc(handlers.HandleUpdate)))
+	http.Handle("/"+cfg.ApiGateway.Endpoint, metrics.MetricsMiddleware(handlers.HandleUpdate(cfg)))
 
 	addr := fmt.Sprintf(":%d", cfg.ApiGateway.Port)
 	logger.ZapLogger.Info("Starting API Gateway", zap.String("port", addr))

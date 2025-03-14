@@ -5,23 +5,29 @@ api-gateway:
 bot-modules:
   anonimus-chat:
     grpc:
-      host: localhost
+      host: 192.168.0.107
       port: 5000
     allowed-updates:
       private_chat:
         - message
+        - edited_message
         - callback_query
         - my_chat_member
+        - chat_member
+        - message_reaction
+        - message_reaction_count
+
+  admin-channel:
+    http:
+      host: 192.168.0.107
+      port: 5002
+    allowed-updates:
       channel:
         - channel_post
         - edited_channel_post
         - callback_query
-  group_stat:
-    grpc:
-      host: localhost
-      port: 5002
-    allowed-updates:
-      supergroup:
-        - message
-        - callback_query
         - my_chat_member
+        - chat_member
+        - chat_join_request
+        - message_reaction
+        - message_reaction_count

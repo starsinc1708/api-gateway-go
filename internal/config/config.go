@@ -15,6 +15,10 @@ type Config struct {
 			Host string `yaml:"host"`
 			Port int    `yaml:"port"`
 		} `yaml:"grpc"`
+		Http struct {
+			Host string `yaml:"host"`
+			Port int    `yaml:"port"`
+		} `yaml:"http"`
 		AllowedUpdates map[string][]string `yaml:"allowed-updates"`
 	} `yaml:"bot-modules"`
 	Logs struct {

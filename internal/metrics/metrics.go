@@ -5,7 +5,6 @@ import (
 	"context"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 	"time"
@@ -22,6 +21,8 @@ const (
 type metricsData struct {
 	updateType   string
 	updateSource string
+	moduleName   string
+	transport    string
 }
 
 var (
@@ -65,6 +66,46 @@ var (
 			Help: "Total response throughput in bytes",
 		},
 	)
+
+	// New metrics
+	grpcRpsGauge = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "grpc_requests_per_second",
+			Help: "gRPC requests per second",
+		},
+	)
+
+	httpRpsGauge = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "http_requests_per_second",
+			Help: "HTTP requests per second",
+		},
+	)
+
+	requestsPerModule = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "requests_per_module",
+			Help: "Total requests forwarded to each bot module",
+		},
+		[]string{"module"},
+	)
+
+	moduleRequestLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "module_request_latency_seconds",
+			Help:    "Latency of requests to bot modules",
+			Buckets: []float64{0.1, 0.3, 0.5, 0.8, 1, 2, 5},
+		},
+		[]string{"module"},
+	)
+
+	moduleResponseStatusCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "module_response_status_count",
+			Help: "Count of response status codes from bot modules",
+		},
+		[]string{"module", "status"},
+	)
 )
 
 func Init() {
@@ -76,6 +117,11 @@ func Init() {
 		responseStatusCounter,
 		rpsGauge,
 		throughputCounter,
+		grpcRpsGauge,
+		httpRpsGauge,
+		requestsPerModule,
+		moduleRequestLatency,
+		moduleResponseStatusCounter,
 	)
 }
 
@@ -97,6 +143,8 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		duration := time.Since(start).Seconds()
 		updateType := data.updateType
 		updateSource := data.updateSource
+		moduleName := data.moduleName
+		transport := data.transport
 
 		if rw.status != http.StatusOK {
 			logger.ZapLogger.Warn("update type or source not defined")
@@ -111,23 +159,33 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 
 		rpsGauge.Set(float64(1))
 
+		// Transport-specific metrics
+		if transport == "gRPC" {
+			grpcRpsGauge.Inc()
+		} else if transport == "HTTP" {
+			httpRpsGauge.Inc()
+		}
+
+		// Module-specific metrics
+		if moduleName != "" {
+			requestsPerModule.WithLabelValues(moduleName).Inc()
+			moduleRequestLatency.WithLabelValues(moduleName).Observe(duration)
+			moduleResponseStatusCounter.WithLabelValues(moduleName, statusCategory).Inc()
+		}
+
 		contentLength := w.Header().Get("Content-Length")
 		if size, err := strconv.Atoi(contentLength); err == nil {
 			throughputCounter.Add(float64(size))
 		}
-
-		logger.ZapLogger.Info("update processed",
-			zap.String("duration", strconv.FormatFloat(duration, 'f', -1, 64)),
-			zap.String("updateType", updateType),
-			zap.String("updateSource", updateSource),
-		)
 	})
 }
 
-func SetUpdateTypeAndSource(r *http.Request, updateType, updateSource string) {
+func SetUpdateMetrics(r *http.Request, updateType, updateSource, moduleName, transport string) {
 	if data, ok := r.Context().Value(MetricsDataKey).(*metricsData); ok {
 		data.updateType = updateType
 		data.updateSource = updateSource
+		data.moduleName = moduleName
+		data.transport = transport
 	}
 }
 

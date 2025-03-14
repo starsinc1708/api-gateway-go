@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package botmodule;
+
+option go_package = "generated/telegram-api";
+
+service BotModule {
+  rpc HandleUpdate (UpdateRequest) returns (UpdateResponse);
+}
+
+message UpdateRequest {
+  string update_json = 1;
+}
+
+// Ответ от модуля бота
+message UpdateResponse {
+  bool success = 1;
+  string message = 2;
+}
