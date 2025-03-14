@@ -6,7 +6,9 @@ import (
 	"api-gateway/internal/metrics"
 	"api-gateway/internal/services"
 	"encoding/json"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -28,6 +30,9 @@ func HandleUpdate(w http.ResponseWriter, r *http.Request) {
 	if updateSource == "" {
 		updateSource = "unknown"
 	}
+
+	randomDelay := time.Duration(rand.Intn(500-23+1)+23) * time.Millisecond
+	time.Sleep(randomDelay)
 
 	metrics.SetUpdateTypeAndSource(r, updateType, string(updateSource))
 	w.WriteHeader(http.StatusOK)
