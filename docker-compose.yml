@@ -54,6 +54,7 @@ services:
 
 volumes:
   grafana-storage:
+  postgres_data:
 
 networks:
   monitoring-net:
