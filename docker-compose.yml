@@ -38,6 +38,20 @@ services:
     networks:
       - monitoring-net
 
+  bot-management-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: bot_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - infrabot-network
+
+
 volumes:
   grafana-storage:
 
