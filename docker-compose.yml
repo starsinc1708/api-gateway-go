@@ -57,3 +57,4 @@ volumes:
 
 networks:
   monitoring-net:
+  infrabot-network:
