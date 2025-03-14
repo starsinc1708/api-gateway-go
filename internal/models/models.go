@@ -13,3 +13,8 @@ const (
 	Poll            UpdateSource = "poll"
 	Unknown         UpdateSource = "unknown"
 )
+
+type ModuleInfo struct {
+	ModuleName    string
+	TransportType string
+}

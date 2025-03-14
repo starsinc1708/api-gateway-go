@@ -2,9 +2,11 @@ package metrics
 
 import (
 	"api-gateway/internal/logger"
+	"api-gateway/internal/models"
 	"context"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 	"time"
@@ -146,11 +148,6 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		moduleName := data.moduleName
 		transport := data.transport
 
-		if rw.status != http.StatusOK {
-			logger.ZapLogger.Warn("update type or source not defined")
-			return
-		}
-
 		requestsTotal.WithLabelValues(updateType, updateSource).Inc()
 		latencyHistogram.WithLabelValues().Observe(duration)
 
@@ -180,12 +177,18 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func SetUpdateMetrics(r *http.Request, updateType, updateSource, moduleName, transport string) {
+func SetUpdateMetrics(r *http.Request, updateType, updateSource string, forwardedModules []models.ModuleInfo, failedModules []string) {
 	if data, ok := r.Context().Value(MetricsDataKey).(*metricsData); ok {
 		data.updateType = updateType
 		data.updateSource = updateSource
-		data.moduleName = moduleName
-		data.transport = transport
+
+		// Логируем успешные модули с их типами транспорта
+		for _, module := range forwardedModules {
+			logger.ZapLogger.Info("Forwarded module",
+				zap.String("module", module.ModuleName),
+				zap.String("transport", module.TransportType),
+			)
+		}
 	}
 }
 

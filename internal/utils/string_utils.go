@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"api-gateway/internal/config"
 	"regexp"
 	"strings"
 )
@@ -20,4 +21,17 @@ func Contains(list []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func ExtractSuitableModules(modules map[string]config.BotModuleConfig, updateSource, updateType string) map[string]config.BotModuleConfig {
+	suitableModules := make(map[string]config.BotModuleConfig)
+
+	for name, module := range modules {
+		if allowedTypes, exists := module.AllowedUpdates[updateSource]; exists {
+			if Contains(allowedTypes, updateType) {
+				suitableModules[name] = module
+			}
+		}
+	}
+	return suitableModules
 }

@@ -5,6 +5,7 @@ import (
 	"api-gateway/internal/generated/telegram-api"
 	"api-gateway/internal/logger"
 	"api-gateway/internal/metrics"
+	"api-gateway/internal/models"
 	"api-gateway/internal/services"
 	"api-gateway/internal/transport"
 	"api-gateway/internal/utils"
@@ -34,54 +35,70 @@ func HandleUpdate(cfg *config.Config) http.HandlerFunc {
 			return
 		}
 
-		var (
-			forwarded     bool
-			transportType string
-			moduleName    string
-			errTransport  error
-		)
-
-		for name, module := range cfg.BotModules {
-			allowedTypes, exists := module.AllowedUpdates[updateSource]
-			if exists && utils.Contains(allowedTypes, updateType) {
-				moduleName = name
-				if module.Grpc.Host != "" {
-					transportType = "gRPC"
-					errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update)
-				} else if module.Http.Host != "" {
-					transportType = "HTTP"
-					errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update)
-				}
-				forwarded = true
-				break
-			}
-		}
-
-		if !forwarded {
+		suitableModules := utils.ExtractSuitableModules(cfg.BotModules, updateSource, updateType)
+		if len(suitableModules) == 0 {
 			logger.ZapLogger.Warn("No suitable bot module found for update",
 				zap.String("updateType", updateType),
 				zap.String("updateSource", updateSource),
 			)
+			http.Error(w, "No suitable module found", http.StatusNotFound)
+			return
 		}
 
-		if errTransport != nil {
-			logger.ZapLogger.Error("Failed to forward update",
-				zap.String("module", moduleName),
-				zap.String("transport", transportType),
-				zap.Error(errTransport),
-			)
-		}
+		var (
+			forwardedModules []models.ModuleInfo
+			failedModules    []string
+		)
 
-		metrics.SetUpdateMetrics(r, updateType, updateSource, moduleName, transportType)
+		for name, module := range suitableModules {
+			var errTransport error
+			var transportType string
+
+			if module.Grpc.Host != "" {
+				transportType = "gRPC"
+				errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update)
+			} else if module.Http.Host != "" {
+				transportType = "HTTP"
+				errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update)
+			}
+
+			if errTransport == nil {
+				forwardedModules = append(forwardedModules, models.ModuleInfo{
+					ModuleName:    name,
+					TransportType: transportType,
+				})
+			} else {
+				failedModules = append(failedModules, name)
+				logger.ZapLogger.Error("Failed to forward update",
+					zap.String("module", name),
+					zap.String("transport", transportType),
+					zap.Error(errTransport),
+				)
+			}
+		}
 
 		logger.ZapLogger.Info("Update processed",
 			zap.String("updateType", updateType),
 			zap.String("updateSource", updateSource),
-			zap.String("module", moduleName),
-			zap.String("transport", transportType),
-			zap.Bool("forwarded", forwarded),
+			zap.Strings("forwardedModules", getModuleNames(forwardedModules)),
+			zap.Strings("failedModules", failedModules),
 		)
 
-		w.WriteHeader(http.StatusOK)
+		metrics.SetUpdateMetrics(r, updateType, updateSource, forwardedModules, failedModules)
+
+		// Если хотя бы один модуль обработал запрос — возвращаем 200, иначе 500
+		if len(forwardedModules) > 0 {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}
+}
+
+func getModuleNames(modules []models.ModuleInfo) []string {
+	names := make([]string, len(modules))
+	for i, module := range modules {
+		names[i] = module.ModuleName
+	}
+	return names
 }
