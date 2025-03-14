@@ -51,6 +51,20 @@ var (
 		},
 		[]string{"status"},
 	)
+
+	rpsGauge = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "api_requests_per_second",
+			Help: "Requests per second",
+		},
+	)
+
+	throughputCounter = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "api_response_throughput_bytes_total",
+			Help: "Total response throughput in bytes",
+		},
+	)
 )
 
 func Init() {
@@ -60,6 +74,8 @@ func Init() {
 		requestsTotal,
 		latencyHistogram,
 		responseStatusCounter,
+		rpsGauge,
+		throughputCounter,
 	)
 }
 
@@ -79,11 +95,10 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 
 		duration := time.Since(start).Seconds()
-
 		updateType := data.updateType
 		updateSource := data.updateSource
 
-		if rw.status != 200 {
+		if rw.status != http.StatusOK {
 			logger.ZapLogger.Warn("update type or source not defined")
 			return
 		}
@@ -93,6 +108,13 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 
 		statusCategory := strconv.Itoa(rw.status/100) + "xx"
 		responseStatusCounter.WithLabelValues(statusCategory).Inc()
+
+		rpsGauge.Set(float64(1))
+
+		contentLength := w.Header().Get("Content-Length")
+		if size, err := strconv.Atoi(contentLength); err == nil {
+			throughputCounter.Add(float64(size))
+		}
 
 		logger.ZapLogger.Info("update processed",
 			zap.String("duration", strconv.FormatFloat(duration, 'f', -1, 64)),

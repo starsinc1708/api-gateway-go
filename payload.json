@@ -1,15 +1,21 @@
 {
-  "update_id": 206910103,
-  "poll_answer": {
-    "poll_id": "5206705071013760782",
-    "user": {
-      "id": 5632802674,
-      "is_bot": false,
-      "first_name": "????????????????",
-      "last_name": "??????????????????????",
-      "username": "fix_the_moment",
-      "language_code": "ru"
+  "update_id": 206910512,
+  "message": {
+    "message_id": 267,
+    "from": {
+      "id": 337508244,
+      "first_name": "тимоFеу",
+      "last_name": "Васильев",
+      "username": "starsinc",
+      "language_code": "ru",
+      "is_premium": true
     },
-    "option_ids": [0]
+    "date": 1741796734,
+    "chat": {
+      "id": -1002490626579,
+      "type": "supergroup",
+      "title": "test infra"
+    },
+    "text": "infea"
   }
 }
