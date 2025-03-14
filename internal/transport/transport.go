@@ -49,7 +49,7 @@ func SendGrpc(host string, port int, update telegram_api.Update) error {
 	}
 	defer conn.Close()
 
-	client := pb.NewBotModuleClient(conn)
+	client := pb.NewTgBotModuleServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

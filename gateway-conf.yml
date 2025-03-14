@@ -5,7 +5,7 @@ api-gateway:
 bot-modules:
   anonimus-chat:
     grpc:
-      host: 192.168.0.107
+      host: localhost
       port: 5000
     allowed-updates:
       private_chat:

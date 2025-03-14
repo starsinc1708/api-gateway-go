@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-package botmodule;
-
 option go_package = "generated/telegram-api";
 
-service BotModule {
+service TgBotModuleService {
   rpc HandleUpdate (UpdateRequest) returns (UpdateResponse);
 }
 

@@ -19,101 +19,101 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BotModule_HandleUpdate_FullMethodName = "/botmodule.BotModule/HandleUpdate"
+	TgBotModuleService_HandleUpdate_FullMethodName = "/TgBotModuleService/HandleUpdate"
 )
 
-// BotModuleClient is the client API for BotModule service.
+// TgBotModuleServiceClient is the client API for TgBotModuleService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BotModuleClient interface {
+type TgBotModuleServiceClient interface {
 	HandleUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 }
 
-type botModuleClient struct {
+type tgBotModuleServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBotModuleClient(cc grpc.ClientConnInterface) BotModuleClient {
-	return &botModuleClient{cc}
+func NewTgBotModuleServiceClient(cc grpc.ClientConnInterface) TgBotModuleServiceClient {
+	return &tgBotModuleServiceClient{cc}
 }
 
-func (c *botModuleClient) HandleUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
+func (c *tgBotModuleServiceClient) HandleUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateResponse)
-	err := c.cc.Invoke(ctx, BotModule_HandleUpdate_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TgBotModuleService_HandleUpdate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// BotModuleServer is the server API for BotModule service.
-// All implementations must embed UnimplementedBotModuleServer
+// TgBotModuleServiceServer is the server API for TgBotModuleService service.
+// All implementations must embed UnimplementedTgBotModuleServiceServer
 // for forward compatibility.
-type BotModuleServer interface {
+type TgBotModuleServiceServer interface {
 	HandleUpdate(context.Context, *UpdateRequest) (*UpdateResponse, error)
-	mustEmbedUnimplementedBotModuleServer()
+	mustEmbedUnimplementedTgBotModuleServiceServer()
 }
 
-// UnimplementedBotModuleServer must be embedded to have
+// UnimplementedTgBotModuleServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedBotModuleServer struct{}
+type UnimplementedTgBotModuleServiceServer struct{}
 
-func (UnimplementedBotModuleServer) HandleUpdate(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedTgBotModuleServiceServer) HandleUpdate(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleUpdate not implemented")
 }
-func (UnimplementedBotModuleServer) mustEmbedUnimplementedBotModuleServer() {}
-func (UnimplementedBotModuleServer) testEmbeddedByValue()                   {}
+func (UnimplementedTgBotModuleServiceServer) mustEmbedUnimplementedTgBotModuleServiceServer() {}
+func (UnimplementedTgBotModuleServiceServer) testEmbeddedByValue()                            {}
 
-// UnsafeBotModuleServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BotModuleServer will
+// UnsafeTgBotModuleServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TgBotModuleServiceServer will
 // result in compilation errors.
-type UnsafeBotModuleServer interface {
-	mustEmbedUnimplementedBotModuleServer()
+type UnsafeTgBotModuleServiceServer interface {
+	mustEmbedUnimplementedTgBotModuleServiceServer()
 }
 
-func RegisterBotModuleServer(s grpc.ServiceRegistrar, srv BotModuleServer) {
-	// If the following call pancis, it indicates UnimplementedBotModuleServer was
+func RegisterTgBotModuleServiceServer(s grpc.ServiceRegistrar, srv TgBotModuleServiceServer) {
+	// If the following call pancis, it indicates UnimplementedTgBotModuleServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&BotModule_ServiceDesc, srv)
+	s.RegisterService(&TgBotModuleService_ServiceDesc, srv)
 }
 
-func _BotModule_HandleUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TgBotModuleService_HandleUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BotModuleServer).HandleUpdate(ctx, in)
+		return srv.(TgBotModuleServiceServer).HandleUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BotModule_HandleUpdate_FullMethodName,
+		FullMethod: TgBotModuleService_HandleUpdate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BotModuleServer).HandleUpdate(ctx, req.(*UpdateRequest))
+		return srv.(TgBotModuleServiceServer).HandleUpdate(ctx, req.(*UpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// BotModule_ServiceDesc is the grpc.ServiceDesc for BotModule service.
+// TgBotModuleService_ServiceDesc is the grpc.ServiceDesc for TgBotModuleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var BotModule_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "botmodule.BotModule",
-	HandlerType: (*BotModuleServer)(nil),
+var TgBotModuleService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "TgBotModuleService",
+	HandlerType: (*TgBotModuleServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "HandleUpdate",
-			Handler:    _BotModule_HandleUpdate_Handler,
+			Handler:    _TgBotModuleService_HandleUpdate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
