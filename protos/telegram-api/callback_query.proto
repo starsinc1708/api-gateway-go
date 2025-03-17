@@ -3,13 +3,17 @@ option go_package = "generated/telegram-api";
 
 import "user.proto";
 import "maybe_inaccessible_message.proto";
+import "message.proto";
 
 message callback_query {
   string id = 1;
   user from = 2;
-  optional maybe_inaccessible_message message = 3;
-  optional string inline_message_id = 4;
-  string chat_instance = 5;
-  optional string data = 6;
-  optional string game_short_name = 7;
+  oneof message {
+    message msg = 3;
+    inaccessible_message inaccessible_message = 4;
+  }
+  optional string inline_message_id = 5;
+  string chat_instance = 6;
+  optional string data = 7;
+  optional string game_short_name = 8;
 }

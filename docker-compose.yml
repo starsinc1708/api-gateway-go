@@ -7,7 +7,7 @@ services:
     ports:
       - "8082:8082"
     networks:
-      - monitoring-net
+      - infrabot-network
     depends_on:
       - prometheus
 
@@ -21,7 +21,7 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     networks:
-      - monitoring-net
+      - infrabot-network
 
   grafana:
     image: grafana/grafana:latest
@@ -36,26 +36,11 @@ services:
     depends_on:
       - prometheus
     networks:
-      - monitoring-net
-
-  bot-management-db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: bot_management
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
       - infrabot-network
 
 
 volumes:
   grafana-storage:
-  postgres_data:
 
 networks:
-  monitoring-net:
   infrabot-network:

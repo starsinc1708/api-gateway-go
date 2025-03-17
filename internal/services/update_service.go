@@ -29,9 +29,15 @@ func ExtractUpdateSource(update telegram_api.Update, updateType string) models.U
 		return models.BusinessAccount
 	}
 	if updateType == "callback_query" {
-		chatType := update.CallbackQuery.Message.GetInaccessibleMessage().Chat.Type
-		if chatType == "" {
-			chatType = update.CallbackQuery.Message.GetMessage().Chat.Type
+		var chatType string
+		if inaccessibleMsg := update.CallbackQuery.GetInaccessibleMessage(); inaccessibleMsg != nil {
+			if inaccessibleMsg.Chat != nil {
+				chatType = inaccessibleMsg.Chat.Type
+			}
+		} else if msg := update.CallbackQuery.GetMsg(); msg != nil {
+			if msg.Chat != nil {
+				chatType = msg.Chat.Type
+			}
 		}
 		return GetSourceFromChatType(chatType)
 	}

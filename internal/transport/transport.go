@@ -11,10 +11,10 @@ import (
 	"net/http"
 	"time"
 
-	pb "api-gateway/internal/generated/telegram-api"
+	bm "api-gateway/internal/generated/bot-module"
 )
 
-func SendHttp(host string, port int, update telegram_api.Update) error {
+func SendHttp(host string, port int, update telegram_api.Update, updateType, updateSource string) error {
 	url := fmt.Sprintf("http://%s:%d/tg-updates", host, port)
 	jsonData, err := json.Marshal(update)
 	if err != nil {
@@ -41,7 +41,7 @@ func SendHttp(host string, port int, update telegram_api.Update) error {
 	return nil
 }
 
-func SendGrpc(host string, port int, update telegram_api.Update) error {
+func SendGrpc(host string, port int, update telegram_api.Update, updateType, updateSource string) error {
 	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", host, port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -49,12 +49,19 @@ func SendGrpc(host string, port int, update telegram_api.Update) error {
 	}
 	defer conn.Close()
 
-	client := pb.NewTgBotModuleServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	client := bm.NewBotModuleServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err = client.HandleUpdate(ctx, &pb.UpdateRequest{
-		UpdateJson: update.String(),
+	updateJson, err := json.Marshal(update)
+	if err != nil {
+		return fmt.Errorf("failed to send gRPC request: %w", err)
+	}
+
+	_, err = client.HandleUpdate(ctx, &bm.UpdateRequest{
+		UpdateJson:   string(updateJson),
+		UpdateType:   updateType,
+		UpdateSource: updateSource,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to send gRPC request: %w", err)

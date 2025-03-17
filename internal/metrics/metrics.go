@@ -148,6 +148,8 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		moduleName := data.moduleName
 		transport := data.transport
 
+		logger.ZapLogger.Info("Duration", zap.Float64("duration", duration))
+
 		requestsTotal.WithLabelValues(updateType, updateSource).Inc()
 		latencyHistogram.WithLabelValues().Observe(duration)
 

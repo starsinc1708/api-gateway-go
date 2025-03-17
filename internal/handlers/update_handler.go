@@ -56,10 +56,10 @@ func HandleUpdate(cfg *config.Config) http.HandlerFunc {
 
 			if module.Grpc.Host != "" {
 				transportType = "gRPC"
-				errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update)
+				errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update, updateType, updateSource)
 			} else if module.Http.Host != "" {
 				transportType = "HTTP"
-				errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update)
+				errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update, updateType, updateSource)
 			}
 
 			if errTransport == nil {

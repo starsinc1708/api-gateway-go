@@ -3,41 +3,15 @@ api-gateway:
   endpoint: tg-updates
 
 bot-modules:
-  anonimus-chat:
+  anon-chat:
     grpc:
-      host: 192.168.0.107
-      port: 5000
-    allowed-updates:
-      private_chat:
-        - message
-        - edited_message
-        - callback_query
-        - my_chat_member
-        - chat_member
-        - message_reaction
-        - message_reaction_count
-
-  anonimus-chat2:
-    grpc:
-      host: 192.168.0.107
+      host: localhost
       port: 5001
     allowed-updates:
       private_chat:
         - message
-        - edited_message
-        - callback_query
-
-  admin-channel:
-    http:
-      host: 192.168.0.107
-      port: 5002
-    allowed-updates:
-      channel:
-        - channel_post
-        - edited_channel_post
         - callback_query
         - my_chat_member
         - chat_member
-        - chat_join_request
         - message_reaction
         - message_reaction_count
