@@ -50,7 +50,7 @@ func SendGrpc(host string, port int, update telegram_api.Update, updateType, upd
 	defer conn.Close()
 
 	client := bm.NewBotModuleServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	updateJson, err := json.Marshal(update)

@@ -16,7 +16,6 @@ import "poll.proto";
 import "venue.proto";
 import "location.proto";
 import "message_auto_delete_timer_changed.proto";
-import "maybe_inaccessible_message.proto";
 import "users_shared.proto";
 import "chat_shared.proto";
 import "write_access_allowed.proto";
@@ -27,10 +26,9 @@ import "chat_background.proto";
 import "forum_topic.proto";
 import "giveaway.proto";
 import "web_app_data.proto";
-import "inline_keyboard.proto";
+//import "inline_keyboard.proto";
 import "video_chat.proto";
 import "payment_info.proto";
-import "giveaway_completed.proto";
 
 message message {
   sint64 message_id = 1;
@@ -90,7 +88,7 @@ message message {
   optional message_auto_delete_timer_changed message_auto_delete_timer_changed = 55;
   optional sint64 migrate_to_chat_id = 56;
   optional sint64 migrate_from_chat_id = 57;
-  optional maybe_inaccessible_message pinned_message = 58;
+  optional message pinned_message = 58;
   optional invoice invoice = 59;
   optional successful_payment successful_payment = 60;
   optional refunded_payment refunded_payment = 61;
@@ -117,7 +115,14 @@ message message {
   optional video_chat_ended video_chat_ended = 82;
   optional video_chat_participants_invited video_chat_participants_invited = 83;
   optional web_app_data web_app_data = 84;
-  optional inline_keyboard_markup reply_markup = 85;
+  //optional inline_keyboard_markup reply_markup = 85; proto cant parse array of arrays
+}
+
+message giveaway_completed {
+  int32 winner_count = 1;
+  optional int32 unclaimed_prize_count = 2;
+  optional message giveaway_message = 3;
+  optional bool is_star_giveaway = 4;
 }
 
 message external_reply_info {

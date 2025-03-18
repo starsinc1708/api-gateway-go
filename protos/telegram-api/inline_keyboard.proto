@@ -4,6 +4,10 @@ option go_package = "generated/telegram-api";
 import "web_app_data.proto";
 
 message inline_keyboard_markup {
+  repeated inline_keyboard_button_row inline_keyboard = 1;
+}
+
+message inline_keyboard_button_row {
   repeated inline_keyboard_button inline_keyboard = 1;
 }
 

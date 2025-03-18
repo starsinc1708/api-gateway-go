@@ -2,16 +2,12 @@ syntax = "proto3";
 option go_package = "generated/telegram-api";
 
 import "user.proto";
-import "maybe_inaccessible_message.proto";
 import "message.proto";
 
 message callback_query {
   string id = 1;
   user from = 2;
-  oneof message {
-    message msg = 3;
-    inaccessible_message inaccessible_message = 4;
-  }
+  optional message message = 3;
   optional string inline_message_id = 5;
   string chat_instance = 6;
   optional string data = 7;
