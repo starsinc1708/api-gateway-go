@@ -8,8 +8,9 @@ service BotModuleService {
 
 message UpdateRequest {
   string update_json = 1;
-  string update_type = 2;
-  string update_source = 3;
+  int64 from_id = 2;
+  string update_type = 3;
+  string update_source = 4;
 }
 
 message UpdateResponse {

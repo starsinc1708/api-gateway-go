@@ -106,7 +106,7 @@ type Message struct {
 	VideoChatStarted              *VideoChatStarted              `protobuf:"bytes,81,opt,name=video_chat_started,json=videoChatStarted,proto3,oneof" json:"video_chat_started,omitempty"`
 	VideoChatEnded                *VideoChatEnded                `protobuf:"bytes,82,opt,name=video_chat_ended,json=videoChatEnded,proto3,oneof" json:"video_chat_ended,omitempty"`
 	VideoChatParticipantsInvited  *VideoChatParticipantsInvited  `protobuf:"bytes,83,opt,name=video_chat_participants_invited,json=videoChatParticipantsInvited,proto3,oneof" json:"video_chat_participants_invited,omitempty"`
-	WebAppData                    *WebAppData                    `protobuf:"bytes,84,opt,name=web_app_data,json=webAppData,proto3,oneof" json:"web_app_data,omitempty"` //optional inline_keyboard_markup reply_markup = 85;
+	WebAppData                    *WebAppData                    `protobuf:"bytes,84,opt,name=web_app_data,json=webAppData,proto3,oneof" json:"web_app_data,omitempty"` //optional inline_keyboard_markup reply_markup = 85; proto cant parse array of arrays
 	unknownFields                 protoimpl.UnknownFields
 	sizeCache                     protoimpl.SizeCache
 }

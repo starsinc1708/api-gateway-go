@@ -24,7 +24,9 @@ func HandleUpdate(cfg *config.Config) http.HandlerFunc {
 		}
 
 		updateType := services.ExtractUpdateType(update)
-		updateSource := string(services.ExtractUpdateSource(update, updateType))
+		source, fromId := services.ExtractUpdateSource(update, updateType)
+
+		updateSource := string(source)
 
 		if updateType == "" || updateSource == "" {
 			logger.ZapLogger.Warn("Unknown update type or source",
@@ -40,6 +42,7 @@ func HandleUpdate(cfg *config.Config) http.HandlerFunc {
 			logger.ZapLogger.Warn("No suitable bot module found for update",
 				zap.String("updateType", updateType),
 				zap.String("updateSource", updateSource),
+				zap.Int64("From", fromId),
 			)
 			http.Error(w, "No suitable module found", http.StatusNotFound)
 			return
@@ -56,10 +59,10 @@ func HandleUpdate(cfg *config.Config) http.HandlerFunc {
 
 			if module.Grpc.Host != "" {
 				transportType = "gRPC"
-				errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update, updateType, updateSource)
+				errTransport = transport.SendGrpc(module.Grpc.Host, module.Grpc.Port, update, updateType, updateSource, fromId)
 			} else if module.Http.Host != "" {
 				transportType = "HTTP"
-				errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update, updateType, updateSource)
+				errTransport = transport.SendHttp(module.Http.Host, module.Http.Port, update, updateType, updateSource, fromId)
 			}
 
 			if errTransport == nil {

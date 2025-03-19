@@ -14,7 +14,7 @@ import (
 	bm "api-gateway/internal/generated/bot-module"
 )
 
-func SendHttp(host string, port int, update telegram_api.Update, updateType, updateSource string) error {
+func SendHttp(host string, port int, update telegram_api.Update, updateType, updateSource string, id int64) error {
 	url := fmt.Sprintf("http://%s:%d/tg-updates", host, port)
 	jsonData, err := json.Marshal(update)
 	if err != nil {
@@ -41,7 +41,7 @@ func SendHttp(host string, port int, update telegram_api.Update, updateType, upd
 	return nil
 }
 
-func SendGrpc(host string, port int, update telegram_api.Update, updateType, updateSource string) error {
+func SendGrpc(host string, port int, update telegram_api.Update, updateType, updateSource string, id int64) error {
 	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", host, port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -62,6 +62,7 @@ func SendGrpc(host string, port int, update telegram_api.Update, updateType, upd
 		UpdateJson:   string(updateJson),
 		UpdateType:   updateType,
 		UpdateSource: updateSource,
+		FromId:       id,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to send gRPC request: %w", err)

@@ -17,80 +17,48 @@ message chat_member_updated {
 }
 
 message chat_member {
-  oneof type {
-    chat_member_owner owner = 1;
-    chat_member_administrator administrator= 2;
-    chat_member_member member = 3;
-    chat_member_restricted restricted = 4;
-    chat_member_left left = 5;
-    chat_member_banned banned = 6;
-  }
-}
+  string status = 1;  // Общее поле для всех типов
+  user user = 2;      // Общее поле для всех типов
 
-message chat_member_owner {
-  string status = 1;
-  user user = 2;
-  bool is_anonymous = 3;
+  // Поля, специфичные для chat_member_owner
+  optional bool is_anonymous = 3;
   optional string custom_title = 4;
-}
 
-message chat_member_administrator {
-  user user = 1;
-  bool can_be_edited = 2;
-  bool is_anonymous = 3;
-  bool can_manage_chat = 4;
-  bool can_delete_messages = 5;
-  bool can_manage_video_chats = 6;
-  bool can_restrict_members = 7;
-  bool can_promote_members = 8;
-  bool can_change_info = 9;
-  bool can_invite_users = 10;
-  bool can_post_stories = 11;
-  bool can_edit_stories = 12;
-  bool can_delete_stories = 13;
-  optional bool can_post_messages = 14;
-  optional bool can_edit_messages = 15;
-  optional bool can_pin_messages = 16;
-  optional bool can_manage_topics = 17;
-  optional string custom_title = 18;
-}
+  // Поля, специфичные для chat_member_administrator
+  optional bool can_be_edited = 5;
+  optional bool can_manage_chat = 6;
+  optional bool can_delete_messages = 7;
+  optional bool can_manage_video_chats = 8;
+  optional bool can_restrict_members = 9;
+  optional bool can_promote_members = 10;
+  optional bool can_change_info = 11;
+  optional bool can_invite_users = 12;
+  optional bool can_post_stories = 13;
+  optional bool can_edit_stories = 14;
+  optional bool can_delete_stories = 15;
+  optional bool can_post_messages = 16;
+  optional bool can_edit_messages = 17;
+  optional bool can_pin_messages = 18;
+  optional bool can_manage_topics = 19;
 
-message chat_member_member {
-  string status = 1;
-  user user = 2;
-  optional int32 until_date = 3;
-}
+  // Поля, специфичные для chat_member_member и chat_member_restricted
+  optional int32 until_date = 20;
 
-message chat_member_restricted {
-  string status = 1;
-  user user = 2;
-  bool is_member = 3;
-  bool can_send_messages = 4;
-  bool can_send_audios = 5;
-  bool can_send_documents = 6;
-  bool can_send_photos = 7;
-  bool can_send_videos = 8;
-  bool can_send_video_notes = 9;
-  bool can_send_voice_notes = 10;
-  bool can_send_polls = 11;
-  bool can_send_other_messages = 12;
-  bool can_add_web_page_previews = 13;
-  bool can_change_info = 14;
-  bool can_invite_users = 15;
-  bool can_pin_messages = 16;
-  bool can_manage_topics = 17;
-  optional int32 until_date = 18;
-}
+  // Поля, специфичные для chat_member_restricted
+  optional bool is_member = 21;
+  optional bool can_send_messages = 22;
+  optional bool can_send_audios = 23;
+  optional bool can_send_documents = 24;
+  optional bool can_send_photos = 25;
+  optional bool can_send_videos = 26;
+  optional bool can_send_video_notes = 27;
+  optional bool can_send_voice_notes = 28;
+  optional bool can_send_polls = 29;
+  optional bool can_send_other_messages = 30;
+  optional bool can_add_web_page_previews = 31;
 
-message chat_member_left {
-  string status = 1;
-  user user = 2;
-}
-
-message chat_member_banned {
-  string status = 1;
-  user user = 2;
-  int32 until_date = 3;
+  // Поля, специфичные для chat_member_banned
+  optional int32 banned_until_date = 32;
 }
 
 
