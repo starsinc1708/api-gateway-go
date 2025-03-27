@@ -1,9 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-import "user.proto";
-
-message paid_media_purchased {
-  user from = 1;
-  string paid_media_payload = 2;
-}

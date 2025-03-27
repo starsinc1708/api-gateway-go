@@ -1,8 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-message birthdate {
-  uint32 day = 1;
-  uint32 month = 2;
-  optional uint32 year = 3;
-}

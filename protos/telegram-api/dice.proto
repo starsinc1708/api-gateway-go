@@ -1,7 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-message dice {
-  string emoji = 1;
-  sint32 value = 2;
-}

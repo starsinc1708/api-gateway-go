@@ -1,9 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-message chat_photo {
-  string small_file_id = 1;
-  string small_file_unique_id = 2;
-  string big_file_id = 3;
-  string big_file_unique_id = 4;
-}

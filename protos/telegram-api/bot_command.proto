@@ -1,7 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-message bot_command {
-  string command = 1;
-  string description = 2;
-}

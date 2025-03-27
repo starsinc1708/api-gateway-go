@@ -6,7 +6,7 @@ bot-modules:
   anon-chat:
     grpc:
       host: localhost
-      port: 5001
+      port: 5002
     allowed-updates:
       private_chat:
         - message

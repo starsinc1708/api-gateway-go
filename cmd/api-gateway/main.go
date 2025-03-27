@@ -9,11 +9,12 @@ import (
 	"api-gateway/internal/handlers"
 	"api-gateway/internal/logger"
 	"api-gateway/internal/metrics"
+
 	"go.uber.org/zap"
 )
 
 func main() {
-	cfg, err := config.LoadConfig("gateway-conf.yml")
+	cfg, err := config.LoadConfig("config.yml")
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}

@@ -1,8 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-message write_access_allowed {
-  optional bool from_request = 1;
-  optional string web_app_name = 2;
-  optional bool from_attachment_menu = 3;
-}

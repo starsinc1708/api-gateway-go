@@ -4,14 +4,16 @@ import (
 	"api-gateway/internal/logger"
 	"api-gateway/internal/models"
 	"context"
-	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
+
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type contextKey string
@@ -30,54 +32,110 @@ type metricsData struct {
 var (
 	registry = prometheus.NewRegistry()
 
-	requestsTotal = prometheus.NewCounterVec(
+	// Request metrics
+	requestsTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "api_requests_total",
 			Help: "Total number of API requests",
 		},
-		[]string{"updateType", "updateSource"},
+		[]string{"method", "endpoint", "status"},
 	)
 
-	latencyHistogram = prometheus.NewHistogramVec(
+	requestDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "api_request_duration_seconds",
-			Help:    "Request latency in seconds",
-			Buckets: []float64{0.1, 0.3, 0.5, 0.8, 1, 2, 5},
+			Help:    "API request duration in seconds",
+			Buckets: prometheus.DefBuckets,
 		},
-		[]string{},
+		[]string{"method", "endpoint"},
 	)
 
-	responseStatusCounter = prometheus.NewCounterVec(
+	// Update metrics
+	updatesTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "api_response_status_count",
-			Help: "Count of response status codes",
+			Name: "telegram_updates_total",
+			Help: "Total number of Telegram updates received",
 		},
-		[]string{"status"},
+		[]string{"update_type", "source"},
 	)
 
-	rpsGauge = prometheus.NewGauge(
+	unknownUpdates = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "telegram_unknown_updates_total",
+			Help: "Total number of unknown update types or sources",
+		},
+		[]string{"update_type", "source"},
+	)
+
+	noSuitableModule = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "telegram_no_suitable_module_total",
+			Help: "Total number of updates with no suitable module",
+		},
+		[]string{"update_type", "source"},
+	)
+
+	// Module metrics
+	moduleRequests = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "module_requests_total",
+			Help: "Total number of requests sent to modules",
+		},
+		[]string{"module", "transport_type", "status"},
+	)
+
+	moduleLatency = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "module_request_duration_seconds",
+			Help:    "Module request duration in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"module", "transport_type"},
+	)
+
+	// Error metrics
+	errorsTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "api_errors_total",
+			Help: "Total number of API errors",
+		},
+		[]string{"type"},
+	)
+
+	// Processing metrics
+	processingStatus = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "api_requests_per_second",
-			Help: "Requests per second",
+			Name: "update_processing_status",
+			Help: "Status of update processing (1 for success, 0 for failure)",
+		},
+		[]string{"update_type", "source", "module"},
+	)
+
+	// Queue metrics
+	queueSize = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "update_queue_size",
+			Help: "Current size of the update processing queue",
 		},
 	)
 
-	throughputCounter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "api_response_throughput_bytes_total",
-			Help: "Total response throughput in bytes",
+	queueLatency = promauto.NewHistogram(
+		prometheus.HistogramOpts{
+			Name:    "update_queue_latency_seconds",
+			Help:    "Time updates spend in queue",
+			Buckets: prometheus.DefBuckets,
 		},
 	)
 
-	// New metrics
-	grpcRpsGauge = prometheus.NewGauge(
+	// Transport metrics
+	grpcRpsGauge = promauto.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "grpc_requests_per_second",
 			Help: "gRPC requests per second",
 		},
 	)
 
-	httpRpsGauge = prometheus.NewGauge(
+	httpRpsGauge = promauto.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "http_requests_per_second",
 			Help: "HTTP requests per second",
@@ -115,10 +173,16 @@ func Init() {
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 		requestsTotal,
-		latencyHistogram,
-		responseStatusCounter,
-		rpsGauge,
-		throughputCounter,
+		requestDuration,
+		updatesTotal,
+		unknownUpdates,
+		noSuitableModule,
+		moduleRequests,
+		moduleLatency,
+		errorsTotal,
+		processingStatus,
+		queueSize,
+		queueLatency,
 		grpcRpsGauge,
 		httpRpsGauge,
 		requestsPerModule,
@@ -143,20 +207,15 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 
 		duration := time.Since(start).Seconds()
-		updateType := data.updateType
-		updateSource := data.updateSource
 		moduleName := data.moduleName
 		transport := data.transport
 
 		logger.ZapLogger.Info("Duration", zap.Float64("duration", duration))
 
-		requestsTotal.WithLabelValues(updateType, updateSource).Inc()
-		latencyHistogram.WithLabelValues().Observe(duration)
+		requestsTotal.WithLabelValues("POST", "/webhook", strconv.Itoa(rw.status)).Inc()
+		requestDuration.WithLabelValues("POST", "/webhook").Observe(duration)
 
 		statusCategory := strconv.Itoa(rw.status/100) + "xx"
-		responseStatusCounter.WithLabelValues(statusCategory).Inc()
-
-		rpsGauge.Set(float64(1))
 
 		// Transport-specific metrics
 		if transport == "gRPC" {
@@ -170,11 +229,6 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 			requestsPerModule.WithLabelValues(moduleName).Inc()
 			moduleRequestLatency.WithLabelValues(moduleName).Observe(duration)
 			moduleResponseStatusCounter.WithLabelValues(moduleName, statusCategory).Inc()
-		}
-
-		contentLength := w.Header().Get("Content-Length")
-		if size, err := strconv.Atoi(contentLength); err == nil {
-			throughputCounter.Add(float64(size))
 		}
 	})
 }
@@ -202,4 +256,60 @@ type responseWriter struct {
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.status = code
 	rw.ResponseWriter.WriteHeader(code)
+}
+
+// RecordRequestDuration records the duration of an API request
+func RecordRequestDuration(duration float64) {
+	requestDuration.WithLabelValues("POST", "/webhook").Observe(duration)
+}
+
+// RecordError records an error occurrence
+func RecordError(errorType string) {
+	errorsTotal.WithLabelValues(errorType).Inc()
+}
+
+// RecordUnknownUpdate records an unknown update type or source
+func RecordUnknownUpdate(updateType, source string) {
+	unknownUpdates.WithLabelValues(updateType, source).Inc()
+}
+
+// RecordNoSuitableModule records when no suitable module is found
+func RecordNoSuitableModule(updateType, source string) {
+	noSuitableModule.WithLabelValues(updateType, source).Inc()
+}
+
+// RecordModuleRequest records a request to a module
+func RecordModuleRequest(module, transportType string, duration float64, err error) {
+	status := "success"
+	if err != nil {
+		status = "error"
+	}
+	moduleRequests.WithLabelValues(module, transportType, status).Inc()
+	moduleLatency.WithLabelValues(module, transportType).Observe(duration)
+}
+
+// RecordUpdateProcessing records the processing status of an update
+func RecordUpdateProcessing(updateType, source string, forwardedModules []models.ModuleInfo, failedModules []string) {
+	// Record successful modules
+	for _, module := range forwardedModules {
+		processingStatus.WithLabelValues(updateType, source, module.ModuleName).Set(1)
+	}
+
+	// Record failed modules
+	for _, module := range failedModules {
+		processingStatus.WithLabelValues(updateType, source, module).Set(0)
+	}
+
+	// Record total updates
+	updatesTotal.WithLabelValues(updateType, source).Inc()
+}
+
+// RecordQueueSize records the current size of the update queue
+func RecordQueueSize(size int) {
+	queueSize.Set(float64(size))
+}
+
+// RecordQueueLatency records the time an update spends in the queue
+func RecordQueueLatency(duration time.Duration) {
+	queueLatency.Observe(duration.Seconds())
 }

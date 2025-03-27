@@ -14,7 +14,7 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/api-gateway .
-COPY gateway-conf.yml .
+COPY configs/gateway/config.yml /app/config.yml
 
 EXPOSE 8082
 

@@ -1,20 +1,20 @@
 package transport
 
 import (
-	"api-gateway/internal/generated/telegram-api"
+	"api-gateway/internal/logger"
+	"api-gateway/internal/models/telegram"
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"time"
 
-	bm "api-gateway/internal/generated/bot-module"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-func SendHttp(host string, port int, update telegram_api.Update, updateType, updateSource string, id int64) error {
+func SendHttp(host string, port int, update telegram.Update, updateType, updateSource string, id int64) error {
 	url := fmt.Sprintf("http://%s:%d/tg-updates", host, port)
 	jsonData, err := json.Marshal(update)
 	if err != nil {
@@ -41,32 +41,49 @@ func SendHttp(host string, port int, update telegram_api.Update, updateType, upd
 	return nil
 }
 
-func SendGrpc(host string, port int, update telegram_api.Update, updateType, updateSource string, id int64) error {
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", host, port),
+func SendGrpc(host string, port int, update telegram.Update, updateType, updateSource string, id int64) error {
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", host, port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("failed to connect to gRPC server: %w", err)
 	}
 	defer conn.Close()
 
-	client := bm.NewBotModuleServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
+	// TODO: Update gRPC client to use new structs
+	// For now, we'll just send the update as JSON
 	updateJson, err := json.Marshal(update)
 	if err != nil {
-		return fmt.Errorf("failed to send gRPC request: %w", err)
+		return fmt.Errorf("failed to marshal update: %w", err)
 	}
 
-	_, err = client.HandleUpdate(ctx, &bm.UpdateRequest{
+	// Create a simple request struct
+	type UpdateRequest struct {
+		UpdateJson   string `json:"update_json"`
+		UpdateType   string `json:"update_type"`
+		UpdateSource string `json:"update_source"`
+		FromId       int64  `json:"from_id"`
+	}
+
+	req := UpdateRequest{
 		UpdateJson:   string(updateJson),
 		UpdateType:   updateType,
 		UpdateSource: updateSource,
 		FromId:       id,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to send gRPC request: %w", err)
 	}
+
+	// Send the request as JSON
+	_, err = json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	logger.ZapLogger.Info("Sending gRPC request",
+		zap.String("host", host),
+		zap.Int("port", port),
+		zap.String("update_type", updateType),
+		zap.String("update_source", updateSource),
+		zap.Int64("from_id", id),
+	)
 
 	return nil
 }

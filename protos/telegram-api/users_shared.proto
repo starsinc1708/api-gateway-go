@@ -1,9 +1,0 @@
-syntax = "proto3";
-option go_package = "generated/telegram-api";
-
-import "shared_user.proto";
-
-message users_shared {
-  int64 request_id = 1;
-  repeated shared_user users = 2;
-}

@@ -23,14 +23,12 @@ func Contains(list []string, item string) bool {
 	return false
 }
 
-func ExtractSuitableModules(modules map[string]config.BotModuleConfig, updateSource, updateType string) map[string]config.BotModuleConfig {
-	suitableModules := make(map[string]config.BotModuleConfig)
+func ExtractSuitableModules(modules map[string]config.ModuleConfig, updateSource, updateType string) map[string]config.ModuleConfig {
+	suitableModules := make(map[string]config.ModuleConfig)
 
 	for name, module := range modules {
-		if allowedTypes, exists := module.AllowedUpdates[updateSource]; exists {
-			if Contains(allowedTypes, updateType) {
-				suitableModules[name] = module
-			}
+		if module.GRPC.Host != "" || module.HTTP.Host != "" {
+			suitableModules[name] = module
 		}
 	}
 	return suitableModules
